@@ -1,164 +1,176 @@
-- title : FsReveal
-- description : Introduction to FsReveal
-- author : Karlkim Suwanmongkol
+- title : ROP
+- description : Railway Oriented Programming @ FSharping
+- author : Honza Brestan
 - theme : night
 - transition : default
 
 ***
 
-### What is FsReveal?
+### Railway Oriented Programming
 
-- Generates [reveal.js](http://lab.hakim.se/reveal-js/#/) presentation from [markdown](http://daringfireball.net/projects/markdown/)
-- Utilizes [FSharp.Formatting](https://github.com/tpetricek/FSharp.Formatting) for markdown parsing
-- Get it from [http://fsprojects.github.io/FsReveal/](http://fsprojects.github.io/FsReveal/)
-
-![FsReveal](images/logo.png)
+Functional approach to error handling
 
 ***
 
-### Reveal.js
+### Happy path
 
-- A framework for easily creating beautiful presentations using HTML.
-
-
-> **Atwood's Law**: any application that can be written in JavaScript, will eventually be written in JavaScript.
-
-***
-
-### FSharp.Formatting
-
-- F# tools for generating documentation (Markdown processor and F# code formatter).
-- It parses markdown and F# script file and generates HTML or PDF.
-- Code syntax highlighting support.
-- It also evaluates your F# code and produce tooltips.
-
-***
-
-### Syntax Highlighting
-
-#### F# (with tooltips)
-
-    let a = 5
-    let factorial x = [1..x] |> List.reduce (*)
-    let c = factorial a
+Surely this is all that can happen...
 
 ---
 
-#### C#
+### Imperative happy path
 
     [lang=cs]
-    using System;
-
-    class Program
+    public IHttpActionResult CreateReservation(ReservationDTO reservation)
     {
-        static void Main()
-        {
-            Console.WriteLine("Hello, world!");
+        Validate(reservation);
+        PersistAndUpdate(reservation);
+        SendNotification(reservation);
+        return Json(reservation);
+    }
+
+---
+
+### Functional happy path
+
+    let createReservation reservation =
+        validate reservation
+        |> persistAndUpdate
+        |> sendNotification
+        |> Json
+
+---
+
+### ...alternatively point-free
+
+    let createReservation =
+        validate
+        >> persistAndUpdate
+        >> sendNotification
+        >> Json
+
+***
+
+### But we can't have nice things
+
+- Validations fail
+- DB connections drop
+- SMTP servers get overloaded
+- other things can go wrong
+
+---
+
+### Imperative real path
+
+    [lang=cs]
+    public IHttpActionResult CreateReservation(ReservationDTO reservation) {
+        Validate(reservation);
+        PersistAndUpdate(reservation);
+        SendNotification(reservation);
+        return Json(reservation);
+    }
+
+---
+
+### Imperative real path
+
+    [lang=cs]
+    public IHttpActionResult CreateReservation(ReservationDTO reservation) {
+        var validated = Validate(reservation);
+        if (!validated) {
+            return BadRequest("Reservation invalid!");
         }
+        PersistAndUpdate(reservation);
+        SendNotification(reservation);
+        return Json(reservation);
     }
 
 ---
 
-#### JavaScript
+### Imperative real path
 
-    [lang=js]
-    function copyWithEvaluation(iElem, elem) {
-        return function (obj) {
-            var newObj = {};
-            for (var p in obj) {
-                var v = obj[p];
-                if (typeof v === "function") {
-                    v = v(iElem, elem);
-                }
-                newObj[p] = v;
-            }
-            if (!newObj.exactTiming) {
-                newObj.delay += exports._libraryDelay;
-            }
-            return newObj;
-        };
+    [lang=cs]
+    public IHttpActionResult CreateReservation(ReservationDTO reservation)
+    {
+        var validated = Validate(reservation);
+        if (!validated) {
+            return BadRequest("Reservation invalid!");
+        }
+        var updatedReservation = PersistAndUpdate(reservation);
+        if (updatedReservation == null) {
+            return BadRequest("Unable to persist reservation!");
+        }
+        SendNotification(updatedReservation);
+        return Json(reservation);
     }
 
+---
+
+### Imperative real path
+
+    [lang=cs]
+    public IHttpActionResult CreateReservation(ReservationDTO reservation)
+    {
+        var validated = Validate(reservation);
+        if (!validated) {
+            return BadRequest("Reservation invalid!");
+        }
+        try {
+            var updatedReservation = PersistAndUpdate(reservation);
+            if (updatedReservation == null) {
+                return BadRequest("Unable to update reservation!");
+            }
+        } catch {
+            return InternalServerError("DB error: unable to persist reservation!");
+        }
+        SendNotification(updatedReservation);
+        return Json(updatedReservation);
+    }
 
 ---
 
-#### Haskell
- 
-    [lang=haskell]
-    recur_count k = 1 : 1 : 
-        zipWith recurAdd (recur_count k) (tail (recur_count k))
-            where recurAdd x y = k * x + y
+### Imperative real path
 
-    main = do
-      argv <- getArgs
-      inputFile <- openFile (head argv) ReadMode
-      line <- hGetLine inputFile
-      let [n,k] = map read (words line)
-      printf "%d\n" ((recur_count k) !! (n-1))
-
-*code from [NashFP/rosalind](https://github.com/NashFP/rosalind/blob/master/mark_wutka%2Bhaskell/FIB/fib_ziplist.hs)*
-
----
-
-### SQL
-
-    [lang=sql]
-    select *
-    from
-    (select 1 as Id union all select 2 union all select 3) as X
-    where Id in (@Ids1, @Ids2, @Ids3)
-
-*sql from [Dapper](https://code.google.com/p/dapper-dot-net/)*
-
----
-
-### Paket
-
-    [lang=paket]
-    source https://nuget.org/api/v2
-
-    nuget Castle.Windsor-log4net >= 3.2
-    nuget NUnit
-    
-    github forki/FsUnit FsUnit.fs
-      
----
-
-### C/AL
-
-    [lang=cal]
-    PROCEDURE FizzBuzz(n : Integer) r_Text : Text[1024];
-    VAR
-      l_Text : Text[1024];
-    BEGIN
-      r_Text := '';
-      l_Text := FORMAT(n);
-
-      IF (n MOD 3 = 0) OR (STRPOS(l_Text,'3') > 0) THEN
-        r_Text := 'Fizz';
-      IF (n MOD 5 = 0) OR (STRPOS(l_Text,'5') > 0) THEN
-        r_Text := r_Text + 'Buzz';
-      IF r_Text = '' THEN
-        r_Text := l_Text;
-    END;
+    [lang=cs]
+    public IHttpActionResult CreateReservation(ReservationDTO reservation)
+    {
+        var validated = Validate(reservation);
+        if (!validated) {
+            return BadRequest("Reservation invalid!");
+        }
+        try {
+            var updatedReservation = PersistAndUpdate(reservation);
+            if (updatedReservation == null) {
+                return BadRequest("Unable to update reservation!");
+            }
+        } catch {
+            return InternalServerError("DB error: unable to persist reservation!");
+        }
+        try {
+            SendNotification(updatedReservation);
+        } catch {
+            log.Error("Confirmation not sent!");
+        }
+        return Json(updatedReservation);
+    }
 
 ***
 
-**Bayes' Rule in LaTeX**
+### What does any of this have to do with railways?
 
-$ \Pr(A|B)=\frac{\Pr(B|A)\Pr(A)}{\Pr(B|A)\Pr(A)+\Pr(B|\neg A)\Pr(\neg A)} $
+---
+
+todo image
+
+    f: 'a -> 'b
+    g: 'b -> 'c
+
+---
+
+todo image
+
+    f >> g: 'a -> 'c
 
 ***
 
-### The Reality of a Developer's Life 
-
-**When I show my boss that I've fixed a bug:**
-  
-![When I show my boss that I've fixed a bug](http://www.topito.com/wp-content/uploads/2013/01/code-07.gif)
-  
-**When your regular expression returns what you expect:**
-  
-![When your regular expression returns what you expect](http://www.topito.com/wp-content/uploads/2013/01/code-03.gif)
-  
-*from [The Reality of a Developer's Life - in GIFs, Of Course](http://server.dzone.com/articles/reality-developers-life-gifs)*
-
+#
