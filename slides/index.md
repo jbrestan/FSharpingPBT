@@ -1,7 +1,7 @@
 - title : ROP
 - description : Railway Oriented Programming @ FSharping
 - author : Honza Brestan
-- theme : night
+- theme : simple
 - transition : default
 
 ***
@@ -18,7 +18,7 @@ Surely this is all that can happen...
 
 ---
 
-### Imperative happy path
+### Imperative
 
     [lang=cs]
     public IHttpActionResult CreateReservation(ReservationDTO reservation)
@@ -31,7 +31,7 @@ Surely this is all that can happen...
 
 ---
 
-### Functional happy path
+### Functional
 
     let createReservation reservation =
         validate reservation
@@ -41,7 +41,7 @@ Surely this is all that can happen...
 
 ---
 
-### ...alternatively point-free
+### And we'll aim for point-free
 
     let createReservation =
         validate
@@ -60,7 +60,7 @@ Surely this is all that can happen...
 
 ---
 
-### Imperative real path
+### Imperative
 
     [lang=cs]
     public IHttpActionResult CreateReservation(ReservationDTO reservation) {
@@ -72,7 +72,7 @@ Surely this is all that can happen...
 
 ---
 
-### Imperative real path
+### Imperative
 
     [lang=cs]
     public IHttpActionResult CreateReservation(ReservationDTO reservation) {
@@ -87,7 +87,7 @@ Surely this is all that can happen...
 
 ---
 
-### Imperative real path
+### Imperative
 
     [lang=cs]
     public IHttpActionResult CreateReservation(ReservationDTO reservation)
@@ -106,7 +106,7 @@ Surely this is all that can happen...
 
 ---
 
-### Imperative real path
+### Imperative
 
     [lang=cs]
     public IHttpActionResult CreateReservation(ReservationDTO reservation)
@@ -129,7 +129,7 @@ Surely this is all that can happen...
 
 ---
 
-### Imperative real path
+### Imperative
 
     [lang=cs]
     public IHttpActionResult CreateReservation(ReservationDTO reservation)
