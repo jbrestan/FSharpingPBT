@@ -18,7 +18,7 @@ Surely this is all that can happen...
 
 ---
 
-### Imperative
+### Imperative example
 
     [lang=cs]
     public IHttpActionResult CreateReservation(ReservationDTO reservation)
@@ -31,7 +31,7 @@ Surely this is all that can happen...
 
 ---
 
-### Functional
+### Functional example
 
     let createReservation reservation =
         validate reservation
@@ -41,7 +41,7 @@ Surely this is all that can happen...
 
 ---
 
-### And we'll aim for point-free
+### Let's aim for point-free
 
     let createReservation =
         validate
@@ -154,22 +154,72 @@ Surely this is all that can happen...
         return Json(updatedReservation);
     }
 
+---
+
+### Functional?
+
+    let createReservation =
+        validate
+        >> persistAndUpdate
+        >> sendNotification
+        >> respond
+
 ***
 
 ### What does any of this have to do with railways?
 
 ---
 
-todo image
+    let f: 'a -> 'b = ...
 
-    f: 'a -> 'b
-    g: 'b -> 'c
+![Single-track function](images/f1.png)
 
 ---
 
-todo image
+    let f: 'a -> 'b = ...
+    let g: 'b -> 'c = ...
 
-    f >> g: 'a -> 'c
+![Two single-track functions](images/f1f2.png)
+
+---
+
+    let f: 'a -> 'b = ...
+    let g: 'b -> 'c = ...
+    let h = f >> g
+
+![Single-track function composition](images/f1compf2.png)
+
+---
+
+    let h: 'a -> 'c = f >> g
+
+![Single-track function composition done](images/f3.png)
+
+---
+
+### Switches
+
+![Switch](images/switch.png)
+
+---
+
+    let validate: Reservation -> Reservation option = ...
+    let persist:  Reservation -> Reservation option = ...
+
+![Switch composition](images/switchcomp.png)
+
+---
+
+    let validate: Reservation        -> Reservation option = ...
+    let persist': Reservation option -> Reservation option = ...
+
+![Switches composed](images/switchcomposed.png)
+
+---
+
+    let persist' = Option.bind persist
+
+![Bind adapter](images/bind.png)
 
 ***
 

@@ -3,7 +3,44 @@
 open System
 open Stubs
 
+module Result =
+    type Result<'value, 'error> =
+        | Success of 'value
+        | Failure of 'error
+
+    let bind binder result =
+        match result with
+        | Success v -> binder v
+        | Failure message -> Failure message
+
+    let map mapping result =
+        match result with
+        | Success v -> mapping v |> Success
+        | Failure message -> Failure message
+
+    type ResultBuilder () =
+        member inline this.Bind (m, f) = bind f m
+        member inline this.Return a = Success a
+        member inline this.ReturnFrom m = m
+        member inline this.Delay(f) = f
+        member inline this.Run(r) = r ()
+        member inline this.TryWith(body, handler) =
+            try this.ReturnFrom(body ())
+            with e -> handler e
+        member inline this.TryFinally(body, compenstaion) =
+            try this.ReturnFrom(body ())
+            finally compenstaion ()
+        member inline this.Using(d:#IDisposable, body) =
+            let body' = fun () -> body d
+            this.TryFinally(body', fun () ->
+                match d with
+                | null -> ()
+                | disp -> disp.Dispose())
+
+    let result = ResultBuilder ()
+
 module Example =
+    open Result
 
     type Reservation =
         { id: int option
@@ -22,39 +59,30 @@ module Example =
         | DbUpdateError
         | DbConnectionError
 
-    type Result<'value, 'error> =
-        | Success of 'value
-        | Failure of 'error
+    let validate r = result {
+        if r.name = "" then
+            return! Failure <| ValidationError EmptyNameError
+        elif r.email = "" then
+            return! Failure <| ValidationError EmptyEmailError
+        else
+            return r
+    }
 
-    let validate r =
-        if r.name = "" then Failure <| ValidationError EmptyNameError
-        elif r.email = "" then Failure <| ValidationError EmptyEmailError
-        else Success r
-
-    let persistAndUpdate r =
+    let persistAndUpdate r = result {
         try
             use conn = Db.connect ()
             try
                 let id = Db.persistEntity conn r
-                Success { r with id = Some id }
+                return { r with id = Some id }
             with
-                | ex -> Failure <| UpdateError DbUpdateError
+                | ex -> return! Failure <| UpdateError DbUpdateError
         with
-            | ex -> Failure <| UpdateError DbConnectionError
+            | ex -> return! Failure <| UpdateError DbConnectionError
+    }
 
     let sendNotification r =
         Smtp.send r.email
         r
-
-    let bind binder result =
-        match result with
-        | Success v -> binder v
-        | Failure message -> Failure message
-
-    let map mapping result =
-        match result with
-        | Success v -> mapping v |> Success
-        | Failure message -> Failure message
 
     let respondToValidationError ve =
         match ve with
@@ -78,7 +106,7 @@ module Example =
 
     let persistAndUpdateR = bind persistAndUpdate
 
-    let sendNotificationR = (map sendNotification)
+    let sendNotificationR = map sendNotification
 
     let createReservation =
         validate

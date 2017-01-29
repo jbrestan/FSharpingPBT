@@ -3,6 +3,7 @@
 open System
 
 module Db =
+    [<AllowNullLiteral>]
     type Connection () =
         interface IDisposable with
             member __.Dispose() = ()
@@ -16,8 +17,10 @@ module Smtp =
     let send _ = ()
 
 module WebApi =
-    let Json _ = ()
+    type IHttpActionResult () = class end
 
-    let BadRequest _ = ()
+    let Json _ = IHttpActionResult ()
 
-    let InternalServerError _ = ()
+    let BadRequest _ = IHttpActionResult ()
+
+    let InternalServerError _ = IHttpActionResult ()
