@@ -8,7 +8,7 @@ module Example =
     type Reservation =
         { id: int option
           name: string
-          email: string}
+          email: string }
 
     type Result<'value, 'error> =
         | Success of 'value
@@ -34,13 +34,13 @@ module Example =
         Smtp.send r.email
         r
 
-    let bind binder choice =
-        match choice with
+    let bind binder result =
+        match result with
         | Success v -> binder v
         | Failure message -> Failure message
 
-    let map mapping choice =
-        match choice with
+    let map mapping result =
+        match result with
         | Success v -> mapping v |> Success
         | Failure message -> Failure message
 

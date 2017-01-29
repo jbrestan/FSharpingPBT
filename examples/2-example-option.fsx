@@ -8,7 +8,7 @@ module Example =
     type Reservation =
         { id: int option
           name: string
-          email: string}
+          email: string }
 
     let validate r =
         if r.name = "" then None

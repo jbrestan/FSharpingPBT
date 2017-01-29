@@ -51,10 +51,14 @@ module Example =
         | Success v -> binder v
         | Failure message -> Failure message
 
+    let (>>=) x f = bind f x
+
     let map mapping result =
         match result with
         | Success v -> mapping v |> Success
         | Failure message -> Failure message
+
+    let (<!>) x f = map f x
 
     let respondToValidationError ve =
         match ve with
@@ -76,12 +80,8 @@ module Example =
             | Success r -> WebApi.Json r
             | Failure message -> respondToError message
 
-    let persistAndUpdateR = bind persistAndUpdate
-
-    let sendNotificationR = (map sendNotification)
-
-    let createReservation =
-        validate
-        >> persistAndUpdateR
-        >> sendNotificationR
-        >> respond
+    let createReservation r =
+        validate r
+        >>= persistAndUpdate
+        <!> sendNotification
+        |> respond
