@@ -21,8 +21,7 @@ Surely this is all that can happen...
 ### Imperative example
 
     [lang=cs]
-    public IHttpActionResult CreateReservation(ReservationDTO reservation)
-    {
+    public IHttpActionResult CreateReservation(ReservationDTO reservation) {
         Validate(reservation);
         PersistAndUpdate(reservation);
         SendNotification(reservation);
@@ -56,7 +55,6 @@ Surely this is all that can happen...
 - Validations fail
 - DB connections drop
 - SMTP servers get overloaded
-- other things can go wrong
 
 ---
 
@@ -90,8 +88,7 @@ Surely this is all that can happen...
 ### Imperative
 
     [lang=cs]
-    public IHttpActionResult CreateReservation(ReservationDTO reservation)
-    {
+    public IHttpActionResult CreateReservation(ReservationDTO reservation) {
         var validated = Validate(reservation);
         if (!validated) {
             return BadRequest("Reservation invalid!");
@@ -109,8 +106,7 @@ Surely this is all that can happen...
 ### Imperative
 
     [lang=cs]
-    public IHttpActionResult CreateReservation(ReservationDTO reservation)
-    {
+    public IHttpActionResult CreateReservation(ReservationDTO reservation) {
         var validated = Validate(reservation);
         if (!validated) {
             return BadRequest("Reservation invalid!");
@@ -132,8 +128,7 @@ Surely this is all that can happen...
 ### Imperative
 
     [lang=cs]
-    public IHttpActionResult CreateReservation(ReservationDTO reservation)
-    {
+    public IHttpActionResult CreateReservation(ReservationDTO reservation) {
         var validated = Validate(reservation);
         if (!validated) {
             return BadRequest("Reservation invalid!");
@@ -222,12 +217,22 @@ Surely this is all that can happen...
 
 ![Bind adapter](images/bind.png)
 
+    let bind binder option =
+        match option with
+        | Some value -> binder value
+        | None -> None
+
 ---
 
     let sendNotification': Reservation option -> Reservation option = 
         Option.map sendNotification
 
 ![Map adapter](images/map.png)
+
+    let map mapping option =
+        match option with
+        | Some value -> Some (mapping value)
+        | None -> None
 
 ---
 
