@@ -217,10 +217,50 @@ Surely this is all that can happen...
 
 ---
 
-    let persist' = Option.bind persist
+    let persist': Reservation option -> Reservation option = 
+        Option.bind persist
 
 ![Bind adapter](images/bind.png)
 
+---
+
+    let sendNotification': Reservation option -> Reservation option = 
+        Option.map sendNotification
+
+![Map adapter](images/map.png)
+
+---
+
+### And many more...
+
+- unit-returning functions
+- exception-throwing functions
+- inspections
+- ...
+
 ***
+
+### Functional "real path"
+
+    let createReservation =
+        validate
+        >> persistAndUpdate
+        >> sendNotification
+        >> respond
+
+***
+
+Result<'TSuccess, 'TError> in FSharp.Core 4.1 (coming soon)
+
+***
+
+### Thank you!
+
+***
+
+### Sources
+
+- [F# for fund and profit](http://fsharpforfunandprofit.com/rop/)
+- [Chessie Result implementation](https://fsprojects.github.io/Chessie/railway.html)
 
 #
