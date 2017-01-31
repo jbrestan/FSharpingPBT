@@ -265,7 +265,7 @@ Result<'TSuccess, 'TError> in FSharp.Core 4.1 (coming soon)
 
 ### Sources
 
-- [F# for fund and profit](http://fsharpforfunandprofit.com/rop/)
+- [F# for fun and profit](http://fsharpforfunandprofit.com/rop/)
 - [Chessie Result implementation](https://fsprojects.github.io/Chessie/railway.html)
 
 #
