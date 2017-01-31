@@ -60,6 +60,16 @@ module Example =
 
     let (<!>) x f = map f x
 
+    // Not shown in the talk, but this lets us take functions like
+    // validate: Reservation -> Result<Reservation, 'TErr>
+    // persist:  Reservation -> Result<Reservation, 'TErr>
+    // and compose them directly, without having to call `bind` ourselves
+    // anywhere in the flow
+    let compose f g x = f x >>= g
+
+    // Infix version of `compose` to be used similiarly to `>>`
+    let (>=>) f g = compose f g
+
     let respondToValidationError ve =
         match ve with
         | EmptyNameError -> WebApi.InternalServerError "Please provide a name"
@@ -85,3 +95,9 @@ module Example =
         >>= persistAndUpdate
         <!> sendNotification
         |> respond
+
+    let createReservation2 =
+        validate
+        >=> persistAndUpdate
+        >=> (sendNotification >> Success)
+        >> respond
