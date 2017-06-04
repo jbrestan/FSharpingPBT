@@ -40,7 +40,9 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Examples.fs" />
+    <Compile Include="Add.fs" />
+    <Compile Include="FizzBuzz.fs" />
+    <Compile Include="ModelBased.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">14</MinimumVisualStudioVersion>
