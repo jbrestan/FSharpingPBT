@@ -38,7 +38,7 @@
 
 ---
 
-1. Write speficication using properties
+1. Write specification using properties
 2. ???
 3. Profit!
 
@@ -108,10 +108,24 @@ Advanced features
 - Value classification
 - Model-based testing
 
----
-
-https://github.com/fscheck/FsCheck
-
 ***
 
 ### Thank you!
+
+***
+
+### Sources
+
+[FsCheck](https://fscheck.github.io/FsCheck/)
+
+
+[xUnit.net](https://xunit.github.io/)
+
+
+[Unquote](https://github.com/SwensenSoftware/unquote)
+
+
+[Mark Seemann - Equivalence Classes](https://vimeo.com/113588391)
+
+
+[Scott Wlaschin - Intro to PBT](https://fsharpforfunandprofit.com/pbt/)
